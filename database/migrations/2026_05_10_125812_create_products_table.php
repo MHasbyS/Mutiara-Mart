@@ -16,9 +16,7 @@ return new class extends Migration
             $table->foreignId('category_id')->constrained('categories')->onDelete('restrict');
             $table->string('nama_produk');
             $table->decimal('harga', 10, 2);
-            $table->integer('stock')->default(0);
-            $table->string('img')->nullable();
-            $table->string('sku')->unique()->nullable();
+            $table->integer('stok')->default(0);
             $table->timestamps();
         });
     }

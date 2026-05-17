@@ -15,12 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('kode')->unique();
             $table->foreignId('user_id')->constrained('users')->onDelete('restrict');
-            $table->string('customer_name')->nullable();
             $table->decimal('total', 10, 2)->default(0);
-            $table->decimal('paid_amount', 10, 2)->nullable();
-            $table->decimal('change_amount', 10, 2)->nullable();
-            $table->enum('status', ['Draft', 'Unpaid', 'Paid', 'Cancelled'])->default('Draft');
-            $table->timestamp('paid_at')->nullable();
+            $table->decimal('bayar', 10, 2);
+            $table->decimal('kembalian', 10, 2)->nullable();
             $table->timestamps();
         });
     }
