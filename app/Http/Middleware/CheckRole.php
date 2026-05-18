@@ -16,9 +16,17 @@ class CheckRole
      */
     public function handle(Request $request, Closure $next, $roles): Response
     {
-         if (!Auth::check() || !in_array(Auth::user()->role, $roles)) {
+        if (! Auth::check()) {
             abort(403, 'Akses Ditolak');
         }
+
+        if ($roles) {
+            $rolesArray = is_array($roles) ? $roles : array_map('trim', explode(',', $roles));
+            if (! in_array(Auth::user()->role, $rolesArray)) {
+                abort(403, 'Akses Ditolak');
+            }
+        }
+
         return $next($request);
     }
 }
