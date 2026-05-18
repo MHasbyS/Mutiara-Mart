@@ -16,7 +16,9 @@ class CategoryContoller extends Controller
      */
     public function index()
     {
-        return view('admin.categories.index');
+        $categories = Category::latest()->get();
+
+        return view('admin.categories.index', compact('categories'));
     }
 
     /**
@@ -35,11 +37,11 @@ class CategoryContoller extends Controller
         $request->validate([
             'nama_kategori' => 'required|string|max:255',
             'img' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'deskripsi' => 'nullable|string'
+            'deskripsi' => 'nullable|string',
         ]);
 
         DB::beginTransaction();
-        try{
+        try {
             $gambarPath = null;
             if ($request->hasFile('img')) {
                 $gambarPath = $request->file('img')->store('categories', 'public');
@@ -54,10 +56,10 @@ class CategoryContoller extends Controller
             DB::commit();
 
             return redirect()->route('admin.categories.index')->with('success', 'Kategori berhasil ditambahkan');
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             DB::rollBack();
 
-            Log::error('Gagal Store Kategori: '. $e->getMessage());
+            Log::error('Gagal Store Kategori: '.$e->getMessage());
 
             return redirect()->back()->with('error', 'terjadi kesalahan sistem.')->withInput();
         }
@@ -66,58 +68,58 @@ class CategoryContoller extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Category $category)
     {
-        //
+        return redirect()->route('admin.categories.index');
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Category $category)
     {
-        return view('admin.categories.edit');
+        return view('admin.categories.edit', compact('category'));
     }
 
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, Category $category)
-{
-    $request->validate([
-        'nama_kategori' => 'required|string|max:255',
-        'img'           => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-        'deskripsi'     => 'nullable|string'
-    ]);
+    {
+        $request->validate([
+            'nama_kategori' => 'required|string|max:255',
+            'img' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'deskripsi' => 'nullable|string',
+        ]);
 
-    DB::beginTransaction();
-    try {
-        $data = $request->except('img');
+        DB::beginTransaction();
+        try {
+            $data = $request->except('img');
 
-        if ($request->hasFile('img')) {
-            if ($category->img && Storage::disk('public')->exists($category->img)) {
-                Storage::disk('public')->delete($category->img);
+            if ($request->hasFile('img')) {
+                if ($category->img && Storage::disk('public')->exists($category->img)) {
+                    Storage::disk('public')->delete($category->img);
+                }
+
+                // Simpan gambar baru
+                $data['img'] = $request->file('img')->store('category', 'public');
             }
 
-            // Simpan gambar baru
-            $data['img'] = $request->file('img')->store('category', 'public');
+            // Update data harus di luar blok IF gambar agar nama/deskripsi tetap terupdate
+            $category->update($data);
+
+            DB::commit();
+
+            return redirect()->route('admin.categories.index')->with('success', 'Kategori berhasil diperbarui.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            Log::error('Gagal Mengubah Kategori: '.$e->getMessage());
+
+            return redirect()->back()->with('error', 'Terjadi kesalahan sistem.')->withInput();
         }
-
-        // Update data harus di luar blok IF gambar agar nama/deskripsi tetap terupdate
-        $category->update($data);
-
-        DB::commit();
-
-        return redirect()->route('admin.categories.index')->with('success', 'Kategori berhasil diperbarui.');
-
-    } catch (\Exception $e) {
-        DB::rollBack();
-
-        Log::error('Gagal Mengubah Kategori: ' . $e->getMessage());
-
-        return redirect()->back()->with('error', 'Terjadi kesalahan sistem.')->withInput();
     }
-}
 
     /**
      * Remove the specified resource from storage.
@@ -125,7 +127,7 @@ class CategoryContoller extends Controller
     public function destroy(Category $category)
     {
         DB::beginTransaction();
-        try{
+        try {
             if ($category->img && Storage::disk('public')->exists($category->img)) {
                 Storage::disk('public')->delete($category->img);
             }
@@ -136,10 +138,10 @@ class CategoryContoller extends Controller
             DB::commit();
 
             return redirect()->route('admin.categories.index')->with('success', 'Kategori berhasil dihapus.');
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             DB::rollBack();
 
-            Log::error('Gagal destroy kategori: ' . $e->getMessage());
+            Log::error('Gagal destroy kategori: '.$e->getMessage());
 
             return redirect()->back()->with('error', 'Terjadi kesalahan sistem.')->withInput();
         }

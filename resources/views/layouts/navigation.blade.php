@@ -17,7 +17,7 @@
                             <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
                                 {{ __('Dashboard') }}
                             </x-nav-link>
-                            <x-nav-link :href="route('admin.dashboard')" >
+                            <x-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.*')">
                                 {{ __('Kategori') }}
                             </x-nav-link>
                             {{-- Tambahkan link khusus admin di sini --}}
@@ -92,6 +92,9 @@
                 @if (Auth::user()->role === 'admin')
                     <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
                         {{ __('Admin Dashboard') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.*')">
+                        {{ __('Kategori') }}
                     </x-responsive-nav-link>
                     {{-- Responsive: tambah link admin di sini --}}
                 @else
